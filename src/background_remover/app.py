@@ -11,7 +11,7 @@ def run_app() -> int:
     """Initialize and run the Qt application."""
     app = QApplication(sys.argv)
     app.setApplicationName("Background Remover")
-    app.setApplicationVersion("1.0.0")
+    app.setApplicationVersion("1.1.0")
 
     # Show splash screen and load model in background
     splash = SplashScreen()
