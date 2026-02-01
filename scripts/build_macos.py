@@ -19,7 +19,6 @@ def main():
         "--name=Background Remover",
         "--windowed",
         "--onedir",
-        f"--add-data={src_dir / 'background_remover' / 'resources'}:resources",
         "--hidden-import=PIL",
         "--hidden-import=rembg",
         "--collect-all=rembg",
