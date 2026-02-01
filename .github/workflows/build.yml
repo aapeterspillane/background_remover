@@ -1,0 +1,115 @@
+name: Build Desktop Apps
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            name: macOS
+            artifact: Background Remover.app
+          - os: windows-latest
+            name: Windows
+            artifact: BackgroundRemover
+
+    runs-on: ${{ matrix.os }}
+    name: Build (${{ matrix.name }})
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Build with PyInstaller (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          pyinstaller \
+            --name="Background Remover" \
+            --windowed \
+            --onedir \
+            --add-data="src/background_remover/resources:resources" \
+            --hidden-import=PIL \
+            --hidden-import=rembg \
+            --collect-all=rembg \
+            --collect-all=onnxruntime \
+            --collect-all=pymatting \
+            --collect-all=pooch \
+            src/background_remover/__main__.py
+
+      - name: Build with PyInstaller (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          pyinstaller `
+            --name="BackgroundRemover" `
+            --windowed `
+            --onedir `
+            --add-data="src/background_remover/resources;resources" `
+            --hidden-import=PIL `
+            --hidden-import=rembg `
+            --collect-all=rembg `
+            --collect-all=onnxruntime `
+            --collect-all=pymatting `
+            --collect-all=pooch `
+            src/background_remover/__main__.py
+
+      - name: Create DMG (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          hdiutil create -volname "Background Remover" \
+            -srcfolder "dist/Background Remover.app" \
+            -ov -format UDZO \
+            "dist/BackgroundRemover-macOS.dmg"
+
+      - name: Create ZIP (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          Compress-Archive -Path "dist/BackgroundRemover" -DestinationPath "dist/BackgroundRemover-Windows.zip"
+
+      - name: Upload macOS DMG
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: BackgroundRemover-macOS
+          path: dist/BackgroundRemover-macOS.dmg
+
+      - name: Upload Windows ZIP
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: BackgroundRemover-Windows
+          path: dist/BackgroundRemover-Windows.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/BackgroundRemover-macOS/BackgroundRemover-macOS.dmg
+            artifacts/BackgroundRemover-Windows/BackgroundRemover-Windows.zip
+          generate_release_notes: true
