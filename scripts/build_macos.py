@@ -24,6 +24,8 @@ def main():
         "--hidden-import=rembg",
         "--collect-all=rembg",
         "--collect-all=onnxruntime",
+        "--collect-all=pymatting",
+        "--collect-all=pooch",
         str(src_dir / "background_remover" / "__main__.py"),
     ]
 
