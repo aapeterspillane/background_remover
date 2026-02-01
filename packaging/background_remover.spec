@@ -17,13 +17,43 @@ a = Analysis(
     [str(src_dir / 'background_remover' / '__main__.py')],
     pathex=[str(src_dir)],
     binaries=[],
-    datas=[
-        (str(src_dir / 'background_remover' / 'resources'), 'resources'),
-    ],
+    datas=[],
     hiddenimports=[
+        # PIL/Pillow
         'PIL',
+        'PIL._imaging',
+        'PIL.Image',
+        # rembg and its dependencies
         'rembg',
+        'rembg.sessions',
+        'rembg.sessions.base',
+        'rembg.sessions.u2net',
+        # ONNX runtime
         'onnxruntime',
+        'onnxruntime.capi',
+        'onnxruntime.capi._pybind_state',
+        # pymatting (alpha matting)
+        'pymatting',
+        'pymatting.alpha',
+        'pymatting.cutout',
+        'pymatting.foreground',
+        'pymatting.laplacian',
+        'pymatting.preconditioner',
+        'pymatting.solver',
+        'pymatting.util',
+        # pooch (model downloading)
+        'pooch',
+        # scipy dependencies
+        'scipy',
+        'scipy.ndimage',
+        'scipy.sparse',
+        'scipy.sparse.linalg',
+        'scipy.sparse.csgraph',
+        # numpy
+        'numpy',
+        # scikit-image
+        'skimage',
+        'skimage.transform',
     ],
     hookspath=[],
     hooksconfig={},

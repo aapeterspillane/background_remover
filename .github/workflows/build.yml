@@ -49,6 +49,8 @@ jobs:
             --collect-all=onnxruntime \
             --collect-all=pymatting \
             --collect-all=pooch \
+            --collect-all=scipy \
+            --collect-all=skimage \
             src/background_remover/__main__.py
 
       - name: Build with PyInstaller (Windows)
@@ -64,6 +66,8 @@ jobs:
             --collect-all=onnxruntime `
             --collect-all=pymatting `
             --collect-all=pooch `
+            --collect-all=scipy `
+            --collect-all=skimage `
             src/background_remover/__main__.py
 
       - name: Create DMG (macOS)

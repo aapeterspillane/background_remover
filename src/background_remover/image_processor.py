@@ -19,7 +19,13 @@ class ImageProcessor:
     def session(self):
         """Lazy-load the rembg session for batch efficiency."""
         if self._session is None:
-            self._session = new_session("u2net")
+            try:
+                self._session = new_session("u2net")
+            except Exception as e:
+                raise RuntimeError(
+                    f"Failed to initialize rembg session: {e}. "
+                    "Ensure you have internet connection for first-time model download."
+                ) from e
         return self._session
 
     @classmethod
@@ -50,7 +56,14 @@ class ImageProcessor:
         output_path = output_path.with_suffix(".png")
 
         # Load input image
-        with Image.open(input_path) as img:
+        try:
+            img = Image.open(input_path)
+        except Exception as e:
+            raise RuntimeError(
+                f"Failed to open image '{input_path.name}': {e}"
+            ) from e
+
+        with img:
             # Convert to RGBA if needed
             if img.mode != "RGBA":
                 img = img.convert("RGBA")
@@ -58,8 +71,15 @@ class ImageProcessor:
             # Remove background using rembg
             result = remove(img, session=self.session)
 
-            # Save with transparency
-            result.save(output_path, "PNG")
+            # Validate result
+            if result is None:
+                raise RuntimeError(
+                    "Background removal failed - rembg returned None. "
+                    "This may indicate the model failed to load."
+                )
+
+            # Save with transparency (use string path for Windows compatibility)
+            result.save(str(output_path), "PNG")
 
     def generate_output_path(self, input_path: Path, output_folder: Path) -> Path:
         """
