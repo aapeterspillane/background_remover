@@ -39,7 +39,8 @@ env/
 
 # PyInstaller
 *.manifest
-*.spec
+# Ignore auto-generated spec in root, but keep packaging/
+/*.spec
 
 # rembg model cache
 .u2net/
