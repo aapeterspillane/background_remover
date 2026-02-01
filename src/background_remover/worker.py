@@ -2,7 +2,7 @@
 
 from pathlib import Path
 from threading import Lock
-from typing import List
+from typing import List, Optional
 
 from PySide6.QtCore import QThread, Signal
 
@@ -18,13 +18,20 @@ class ProcessingWorker(QThread):
     file_completed = Signal(str, bool, str)  # filename, success, message
     all_completed = Signal(int, int)  # successful, failed
 
-    def __init__(self, files: List[Path], output_folder: Path, parent=None):
+    def __init__(
+        self,
+        files: List[Path],
+        output_folder: Path,
+        processor: Optional[ImageProcessor] = None,
+        parent=None,
+    ):
         """
         Initialize the worker.
 
         Args:
             files: List of input file paths to process.
             output_folder: Folder where outputs will be saved.
+            processor: Optional pre-loaded ImageProcessor instance.
             parent: Parent QObject.
         """
         super().__init__(parent)
@@ -32,7 +39,7 @@ class ProcessingWorker(QThread):
         self._output_folder = output_folder
         self._cancelled = False
         self._cancel_lock = Lock()
-        self._processor = ImageProcessor()
+        self._processor = processor if processor else ImageProcessor()
 
     def cancel(self):
         """Request cancellation of the processing."""

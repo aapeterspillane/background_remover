@@ -25,12 +25,18 @@ from background_remover.worker import ProcessingWorker
 class MainWindow(QMainWindow):
     """Main application window."""
 
-    def __init__(self):
-        """Initialize the main window."""
+    def __init__(self, processor: Optional[ImageProcessor] = None):
+        """
+        Initialize the main window.
+
+        Args:
+            processor: Optional pre-loaded ImageProcessor instance for faster startup.
+        """
         super().__init__()
         self._output_folder: Optional[Path] = None
         self._worker: Optional[ProcessingWorker] = None
         self._progress_dialog: Optional[ProgressDialog] = None
+        self._processor = processor  # Pre-loaded processor from splash screen
 
         self._setup_ui()
         self._setup_menu()
@@ -162,8 +168,8 @@ class MainWindow(QMainWindow):
         self._progress_dialog = ProgressDialog(len(files), self)
         self._progress_dialog.cancel_requested.connect(self._cancel_processing)
 
-        # Create worker thread
-        self._worker = ProcessingWorker(files, self._output_folder)
+        # Create worker thread (use pre-loaded processor if available)
+        self._worker = ProcessingWorker(files, self._output_folder, self._processor)
         self._worker.progress_updated.connect(self._progress_dialog.update_progress)
         self._worker.file_started.connect(self._on_file_started)
         self._worker.file_completed.connect(self._on_file_completed)
