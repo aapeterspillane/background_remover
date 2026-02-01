@@ -1,0 +1,64 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Qt
+*.qmlc
+*.jsc
+
+# PyInstaller
+*.manifest
+*.spec
+
+# rembg model cache
+.u2net/
+
+# macOS
+.DS_Store
+*.dmg
+
+# Windows
+Thumbs.db
+*.exe
+*.msi
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build outputs
+dist/
+build/
+*.app/
