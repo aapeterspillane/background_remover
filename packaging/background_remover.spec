@@ -1,8 +1,14 @@
 # -*- mode: python ; coding: utf-8 -*-
-"""PyInstaller spec file for Background Remover."""
+"""PyInstaller spec file for Background Remover.
+
+This is the single source of truth for PyInstaller configuration.
+Used by both local builds and GitHub Actions CI.
+"""
 
 import sys
 from pathlib import Path
+
+from PyInstaller.utils.hooks import collect_all
 
 block_cipher = None
 
@@ -13,48 +19,36 @@ is_windows = sys.platform == 'win32'
 project_root = Path(SPECPATH).parent
 src_dir = project_root / 'src'
 
+# Collect all data files and binaries for packages that need them
+datas = []
+binaries = []
+hiddenimports = []
+
+# Packages that need full collection (data files, binaries, submodules)
+collect_all_packages = ['rembg', 'onnxruntime', 'pymatting', 'pooch', 'scipy', 'skimage']
+
+for package in collect_all_packages:
+    pkg_datas, pkg_binaries, pkg_hiddenimports = collect_all(package)
+    datas += pkg_datas
+    binaries += pkg_binaries
+    hiddenimports += pkg_hiddenimports
+
+# Additional hidden imports not caught by collect_all
+hiddenimports += [
+    # PIL/Pillow
+    'PIL',
+    'PIL._imaging',
+    'PIL.Image',
+    # numpy
+    'numpy',
+]
+
 a = Analysis(
     [str(src_dir / 'background_remover' / '__main__.py')],
     pathex=[str(src_dir)],
-    binaries=[],
-    datas=[],
-    hiddenimports=[
-        # PIL/Pillow
-        'PIL',
-        'PIL._imaging',
-        'PIL.Image',
-        # rembg and its dependencies
-        'rembg',
-        'rembg.sessions',
-        'rembg.sessions.base',
-        'rembg.sessions.u2net',
-        # ONNX runtime
-        'onnxruntime',
-        'onnxruntime.capi',
-        'onnxruntime.capi._pybind_state',
-        # pymatting (alpha matting)
-        'pymatting',
-        'pymatting.alpha',
-        'pymatting.cutout',
-        'pymatting.foreground',
-        'pymatting.laplacian',
-        'pymatting.preconditioner',
-        'pymatting.solver',
-        'pymatting.util',
-        # pooch (model downloading)
-        'pooch',
-        # scipy dependencies
-        'scipy',
-        'scipy.ndimage',
-        'scipy.sparse',
-        'scipy.sparse.linalg',
-        'scipy.sparse.csgraph',
-        # numpy
-        'numpy',
-        # scikit-image
-        'skimage',
-        'skimage.transform',
-    ],
+    binaries=binaries,
+    datas=datas,
+    hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
