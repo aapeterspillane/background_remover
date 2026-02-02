@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Build script for Windows executable using PyInstaller."""
+"""Build script for Windows executable using PyInstaller.
+
+Uses the spec file at packaging/background_remover.spec as the
+single source of truth for build configuration.
+"""
 
 import subprocess
 import sys
@@ -9,23 +13,17 @@ from pathlib import Path
 def main():
     """Build the Windows executable."""
     project_root = Path(__file__).parent.parent
-    src_dir = project_root / "src"
+    spec_file = project_root / "packaging" / "background_remover.spec"
 
-    # PyInstaller command
+    if not spec_file.exists():
+        print(f"Error: Spec file not found at {spec_file}")
+        sys.exit(1)
+
     cmd = [
         sys.executable,
         "-m",
         "PyInstaller",
-        "--name=BackgroundRemover",
-        "--windowed",
-        "--onedir",
-        "--hidden-import=PIL",
-        "--hidden-import=rembg",
-        "--collect-all=rembg",
-        "--collect-all=onnxruntime",
-        "--collect-all=pymatting",
-        "--collect-all=pooch",
-        str(src_dir / "background_remover" / "__main__.py"),
+        str(spec_file),
     ]
 
     print("Building Windows executable...")
