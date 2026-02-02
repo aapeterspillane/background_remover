@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0", "wheel", "setuptools-scm>=8.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "background_remover"
-version = "1.1.0"
+dynamic = ["version"]
 description = "A desktop app to remove image backgrounds using AI"
 readme = "README.md"
 license = {text = "MIT"}
@@ -42,6 +42,9 @@ target-version = "py39"
 select = ["E", "F", "I", "N", "W"]
 # Ignore naming convention for Qt override methods
 ignore = ["N802"]
+
+[tool.setuptools_scm]
+# Version is derived from git tags (e.g., v1.2.0 -> 1.2.0)
 
 [tool.pytest.ini_options]
 markers = [
